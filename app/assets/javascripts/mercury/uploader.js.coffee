@@ -118,7 +118,7 @@ jQuery.extend Mercury.uploader,
       if (event.currentTarget.status >= 400)
         @updateStatus('Error: Unable to upload the file')
         Mercury.notify('Unable to process response: %s', event.currentTarget.status)
-        #@hide()
+        @hide()
       else
         try
           response =
@@ -136,7 +136,6 @@ jQuery.extend Mercury.uploader,
 
               if ['application/pdf'].indexOf(@file.type) > -1
                 selection = Mercury.region.selection()
-                alert('you wants a pdf')
                 if selection.range.collapsed is false
                   if selection.commonAncestor && selection.commonAncestor(true).find('img').length > 0 
                     content = selection.commonAncestor(true).find('img')[0]
@@ -155,7 +154,7 @@ jQuery.extend Mercury.uploader,
                 src=asset["url"]
                 throw 'Malformed response from server.' unless src
                 Mercury.trigger('action', {action: 'insertImage', value: {src: src}})
-                #@hide()
+                @hide()
         catch error
           @updateStatus('Error: Unable to upload the file')
           Mercury.notify('Unable to process response: %s', error)
