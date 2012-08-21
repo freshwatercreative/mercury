@@ -7,7 +7,7 @@ jQuery.extend Mercury.uploader,
   show: (file, @options = {}) ->
     @file = new Mercury.uploader.File(file)
     if @file.errors
-      alert("Error: #{@file.errors}")
+      console.log("Error: #{@file.errors}")
       return
     return unless @supported()
 
@@ -40,15 +40,26 @@ jQuery.extend Mercury.uploader,
   formDataSupported: ->
     !!(window.FormData)
 
+  determine_format: ->
+    if ['application/pdf'].indexOf(@file.type) > -1
+      return "/mercury/documents"
+    else
+      return "/mercury/images"
+
   build: ->
     @element = jQuery('<div>', {class: 'mercury-uploader', style: 'display:none'})
-    @element.append('<div class="mercury-uploader-preview"><b><img/></b></div>')
-    @element.append('<div class="mercury-uploader-details"></div>')
-    @element.append('<div class="mercury-uploader-progress"><span></span><div class="mercury-uploader-indicator"><div><b>0%</b></div></div></div>')
-
+    @form = jQuery('<form>', {method: 'put', action:  '/mercury/assets/', id: 'upload_attributes'})
+    @form.data({remote: true})
+    
+    @form.append('<div class="mercury-uploader-preview"><b><img/></b></div>')
+    @form.append('<div class="mercury-uploader-options"><input type="text" name="asset[title]" id="asset[title]" placeholder="Asset Title" /></div>')
+    @form.append('<div class="mercury-uploader-details"></div>')
+    @form.append('<div class="mercury-uploader-progress"><span></span><div class="mercury-uploader-indicator"><div><b>0%</b></div></div></div>')
+    @form.append('<div class="mercury-uploader-update"><button disabled="true" class="button">Update</button></div>')
     @updateStatus('Processing...')
-
     @overlay = jQuery('<div>', {class: 'mercury-uploader-overlay', style: 'display:none'})
+ 
+    @element.append(@form)
 
     @element.appendTo(jQuery(@options.appendTo).get(0) ? 'body')
     @overlay.appendTo(jQuery(@options.appendTo).get(0) ? 'body')
@@ -91,9 +102,10 @@ jQuery.extend Mercury.uploader,
 
   loadImage: ->
     if Mercury.uploader.fileReaderSupported()
-      @file.readAsDataURL (result) =>
-        @element.find('.mercury-uploader-preview b').html(jQuery('<img>', {src: result}))
-        @upload()
+      if ['image/jpeg', 'image/gif', 'image/png'].indexOf(@file.type) > -1
+        @file.readAsDataURL (result) =>
+          @element.find('.mercury-uploader-preview b').html(jQuery('<img>', {src: result}))
+      @upload()
     else
       @upload()
 
@@ -106,24 +118,50 @@ jQuery.extend Mercury.uploader,
       if (event.currentTarget.status >= 400)
         @updateStatus('Error: Unable to upload the file')
         Mercury.notify('Unable to process response: %s', event.currentTarget.status)
-        @hide()
+        #@hide()
       else
         try
           response =
+            
             if Mercury.config.uploading.handler
               Mercury.config.uploading.handler(event.target.responseText)
             else
-              jQuery.parseJSON(event.target.responseText)
-          src = response.url || response.image.url
-          throw 'Malformed response from server.' unless src
-          Mercury.trigger('action', {action: 'insertImage', value: {src: src}})
-          @hide()
+              asset = jQuery.parseJSON(event.target.responseText)
+              t = this
+              $('#upload_attributes').attr("action",'/mercury/assets/'+asset["id"])
+              $('#upload_attributes .mercury-uploader-update button').attr("disabled", false) 
+              $('#upload_attributes .mercury-uploader-update button').on "click", (event) ->
+                $('#upload_attributes').submit()
+                t.hide()
+
+              if ['application/pdf'].indexOf(@file.type) > -1
+                selection = Mercury.region.selection()
+                alert('you wants a pdf')
+                if selection.range.collapsed is false
+                  if selection.commonAncestor && selection.commonAncestor(true).find('img').length > 0 
+                    content = selection.commonAncestor(true).find('img')[0]
+                  else
+                    content = selection.fragment.textContent
+
+                container = selection.commonAncestor(true).closest('a') if selection && selection.commonAncestor
+                attrs = {href: asset["url"]}
+                attrs['target'] = "_blank"
+                if container && container.length
+                  Mercury.trigger('action', {action: 'replaceLink', value: {tagName: 'a', attrs: attrs, content: content}, node: container.get(0)})
+                else
+                  Mercury.trigger('action', {action: 'insertLink', value: {tagName: 'a', attrs: attrs, content: content}})
+              
+              else if ['image/jpeg', 'image/gif', 'image/png'].indexOf(@file.type) > -1
+                src=asset["url"]
+                throw 'Malformed response from server.' unless src
+                Mercury.trigger('action', {action: 'insertImage', value: {src: src}})
+                #@hide()
         catch error
           @updateStatus('Error: Unable to upload the file')
           Mercury.notify('Unable to process response: %s', error)
-          @hide()
+          #@hide()
 
-    xhr.open('post', Mercury.config.uploading.url, true)
+    xhr.open('post', @determine_format(), true)
     xhr.setRequestHeader('Accept', 'application/json, text/javascript, text/html, application/xml, text/xml, */*')
     xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
     xhr.setRequestHeader(Mercury.config.csrfHeader, Mercury.csrfToken)
@@ -204,6 +242,7 @@ class Mercury.uploader.File
     @readableSize = @size.toBytes()
     @name = @file.name || @file.fileName
     @type = @file.type || @file.fileType
+    @id   = @file.id   || ""
 
     # add any errors if we need to
     errors = []
@@ -243,3 +282,5 @@ class Mercury.uploader.MultiPartPost
     for own name, value of @formInputs
       @body += "#{boundary}\r\nContent-Disposition: form-data; name=\"#{name}\"\r\n\r\n#{unescape(encodeURIComponent(value))}\r\n"
     @body += "#{boundary}\r\nContent-Disposition: form-data; name=\"#{@inputName}\"; filename=\"#{@file.name}\"\r\nContent-Type: #{@file.type}\r\nContent-Transfer-Encoding: binary\r\n\r\n#{@contents}\r\n#{boundary}--"
+
+
