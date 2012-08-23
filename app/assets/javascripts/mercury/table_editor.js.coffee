@@ -17,6 +17,9 @@ jQuery.extend Mercury.tableEditor,
   addColumnAfter: ->
     @addColumn('after')
 
+  changeTableClass: (new_class) ->
+    @table.removeAttr('class')
+    @table.addClass(new_class)
 
   addColumn: (position = 'after') ->
     sig = @cellSignatureFor(@cell)

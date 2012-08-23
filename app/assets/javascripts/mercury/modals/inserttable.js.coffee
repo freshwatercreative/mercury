@@ -38,7 +38,10 @@
     Mercury.tableEditor[action]()
 
 
-  setTableAlignment: ->
+  setTableClass: ->
+    @table.attr({class: @element.find('#table_class').val()})
+
+ setTableAlignment: ->
     @table.attr({align: @element.find('#table_alignment').val()})
 
   setTableBorder: ->
@@ -60,9 +63,10 @@
     @table.find('.selected').removeAttr('class')
     @table.find('td, th').html('<br/>')
 
+    @setTableClass()
     html = jQuery('<div>').html(@table).html()
     value = html.replace(/^\s+|\n/gm, '').replace(/(<\/.*?>|<table.*?>|<tbody>|<tr>)/g, '$1\n')
-
+    
     Mercury.trigger('action', {action: 'insertTable', value: value})
 
 }
