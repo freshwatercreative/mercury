@@ -29,16 +29,19 @@ class @Mercury.Snippet
 
 
   @create: (name, options) ->
-    if @all.length > 0
-      identity = "snippet_0"
-      for snippet, i in @all
-        identity = "snippet_#{i+1}" if snippet.identity == identity
-    else
-      identity = "snippet_#{@all.length}"
-
-    instance = new Mercury.Snippet(name, identity, options)
+    instance = new Mercury.Snippet(name, @uniqueId(), options)
     @all.push(instance)
     return instance
+
+  @uniqueId: ->
+    [i, identity] = [0, "snippet_0"]
+    identities = (snippet.identity for snippet in @all)
+
+    while identities.indexOf(identity) isnt -1
+      i += 1
+      identity = "snippet_#{i}"
+
+    return identity
 
 
   @find: (identity) ->
@@ -49,7 +52,7 @@ class @Mercury.Snippet
 
   @load: (snippets) ->
     for own identity, details of snippets
-      instance = new Mercury.Snippet(details.name, identity, details.options)
+      instance = new Mercury.Snippet(details.name, identity, details)
       @all.push(instance)
 
 
@@ -124,4 +127,6 @@ class @Mercury.Snippet
 
 
   serialize: ->
-    return $.extend(@options, {name: @name})
+    return $.extend({name: @name}, @options )
+
+
