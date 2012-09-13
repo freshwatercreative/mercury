@@ -41,18 +41,17 @@ jQuery.extend Mercury.uploader,
     !!(window.FormData)
 
   determine_format: ->
-    if ['application/pdf'].indexOf(@file.type) > -1
+    if ['application/pdf', "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation"].indexOf(@file.type) > -1
       return "/mercury/documents"
     else
       return "/mercury/images"
 
   build: ->
     @element = jQuery('<div>', {class: 'mercury-uploader', style: 'display:none'})
-    @form = jQuery('<form>', {method: 'put', action:  '/mercury/assets/', id: 'upload_attributes'})
-    @form.data({remote: true})
-    
+    @form = jQuery('<form>', {method: 'put', action:  '/admin/mercury_assets/', id: 'upload_attributes'})
     @form.append('<div class="mercury-uploader-preview"><b><img/></b></div>')
-    @form.append('<div class="mercury-uploader-options"><input type="text" name="asset[title]" id="asset[title]" placeholder="Asset Title" /></div>')
+    @form.append('<div class="mercury-uploader-name"><input disabled="true" type="text" name="asset[name]" id="asset[name]" placeholder="Asset Name" /></div>')
+    @form.append('<div class="mercury-uploader-format"><select disabled="true" id="asset[named_format]" name="asset[named_format]"><option value="original">Original</option><option value="full">Full Banner (690x250)</option><option value="callout">Banner with Callout (460x250)</option><option value="thumb">Thumbnail (218x100)</option></select>')
     @form.append('<div class="mercury-uploader-details"></div>')
     @form.append('<div class="mercury-uploader-progress"><span></span><div class="mercury-uploader-indicator"><div><b>0%</b></div></div></div>')
     @form.append('<div class="mercury-uploader-update"><button disabled="true" class="button">Update</button></div>')
@@ -94,8 +93,8 @@ jQuery.extend Mercury.uploader,
   fillDisplay: ->
     details = [
       Mercury.I18n('Name: %s', @file.name),
-      Mercury.I18n('Size: %s', @file.readableSize),
-      Mercury.I18n('Type: %s', @file.type)
+      Mercury.I18n('Size: %s', @file.readableSize)
+      #Mercury.I18n('Type: %s', @file.type)
     ]
     @element.find('.mercury-uploader-details').html(details.join('<br/>'))
 
@@ -128,13 +127,33 @@ jQuery.extend Mercury.uploader,
             else
               asset = jQuery.parseJSON(event.target.responseText)
               t = this
-              $('#upload_attributes').attr("action",'/mercury/assets/'+asset["id"])
               $('#upload_attributes .mercury-uploader-update button').attr("disabled", false) 
+              $('#upload_attributes .mercury-uploader-name input').attr("disabled", false) 
+              $('#upload_attributes .mercury-uploader-format select').attr("disabled", false) 
+              $('#upload_attributes .mercury-uploader-format select').on "change", (event) ->
+                filename_match = $("#mercury_iframe").contents().find("#mercury_inserted_image").attr("src").match(/([\w\d_-]*)\.?[^\\\/]*$/)[1]
+                $("#mercury_iframe").contents().find("#mercury_inserted_image").attr("src", $("#mercury_iframe").contents().find("#mercury_inserted_image").attr("src").replace(filename_match,$(this).val()))
               $('#upload_attributes .mercury-uploader-update button').on "click", (event) ->
-                $('#upload_attributes').submit()
+                $("#mercury_iframe").contents().find("#mercury_inserted_image").removeAttr("id")
+                $.ajax 
+                  type: 'PUT'
+                  url: '/admin/mercury_assets/'+asset["id"]
+                  dataType: 'json'
+                  contentType: 'application/json'
+                  data: 
+                    JSON.stringify(asset:
+                      name: document.getElementById("asset[name]").value
+                    )
+                error: (jqXHR, textStatus, errorThrown) ->
+                  console.log "Error naming image"
+                  #$('body').append "AJAX Error #{textStatus}"
+                success: (data, textStatus, jqXHR) ->
+                  console.log "Image name updated"
+                  #$('body').append "Success: #{data}"
                 t.hide()
+                return(false)
 
-              if ['application/pdf'].indexOf(@file.type) > -1
+              if ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation"].indexOf(@file.type) > -1
                 selection = Mercury.region.selection()
                 if selection.range.collapsed is false
                   if selection.commonAncestor && selection.commonAncestor(true).find('img').length > 0 
@@ -153,8 +172,8 @@ jQuery.extend Mercury.uploader,
               else if ['image/jpeg', 'image/gif', 'image/png'].indexOf(@file.type) > -1
                 src=asset["url"]
                 throw 'Malformed response from server.' unless src
-                Mercury.trigger('action', {action: 'insertImage', value: {src: src}})
-                @hide()
+                Mercury.trigger('action', {action: 'insertImage', value: {src: src, id: "mercury_inserted_image"}})
+                #@hide()
         catch error
           @updateStatus('Error: Unable to upload the file')
           Mercury.notify('Unable to process response: %s', error)
