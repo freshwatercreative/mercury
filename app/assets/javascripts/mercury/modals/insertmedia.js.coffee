@@ -26,6 +26,7 @@
     # if we're editing an image prefill the information
     if image = selection.is?('img')
       @element.find('#media_image_url').val(image.attr('src'))
+      
       @element.find('#media_image_alignment').val(image.attr('align'))
       @element.find('#media_image_float').val(if image.attr('style')? then image.css('float') else '')
       @focus('#media_image_url')
@@ -97,7 +98,10 @@
 
     switch type
       when 'image_url'
+        format = @element.find('#media_named_format').val()
         attrs = {src: @element.find('#media_image_url').val()}
+        attrs["src"] = attrs["src"].replace("original",format)
+
         attrs['align'] = alignment if alignment = @element.find('#media_image_alignment').val()
         attrs['style'] = 'float: ' + float + ';' if float = @element.find('#media_image_float').val()
         Mercury.trigger('action', {action: 'insertImage', value: attrs})
