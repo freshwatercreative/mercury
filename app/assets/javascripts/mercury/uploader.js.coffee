@@ -51,7 +51,7 @@ jQuery.extend Mercury.uploader,
     @form = jQuery('<form>', {method: 'put', action:  '/admin/mercury_assets/', id: 'upload_attributes'})
     @form.append('<div class="mercury-uploader-preview"><b><img/></b></div>')
     @form.append('<div class="mercury-uploader-name"><input disabled="true" type="text" name="asset[name]" id="asset[name]" placeholder="Asset Name" /></div>')
-    @form.append('<div class="mercury-uploader-format"><select disabled="true" id="asset[named_format]" name="asset[named_format]"><option value="original">Original</option><option value="full">Full Banner (690x250)</option><option value="callout">Banner with Callout (460x250)</option><option value="thumb">Thumbnail (218x100)</option></select>')
+    @form.append('<div class="mercury-uploader-format"><select disabled="true" id="asset[named_format]" name="asset[named_format]"><option value="original">Original</option><option value="full">Full Column</option><option value="half">Half Column</option><option value="quarter">Quarter Column</option><option value="thumb">Thumbnail (150x150)</option></select>')
     @form.append('<div class="mercury-uploader-details"></div>')
     @form.append('<div class="mercury-uploader-progress"><span></span><div class="mercury-uploader-indicator"><div><b>0%</b></div></div></div>')
     @form.append('<div class="mercury-uploader-update"><button disabled="true" class="button">Update</button></div>')
