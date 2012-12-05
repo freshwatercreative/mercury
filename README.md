@@ -1,6 +1,8 @@
 # Mercury Editor
 
 [![Build Status](https://secure.travis-ci.org/jejacks0n/mercury.png?branch=master)](http://travis-ci.org/jejacks0n/mercury)
+[![Dependency Status](https://gemnasium.com/jejacks0n/mercury.png)](https://gemnasium.com/jejacks0n/mercury)
+[![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/jejacks0n/mercury)
 
 Mercury Editor is a fully featured editor much like TinyMCE or CKEditor, but with a different usage paradigm.  It
 expects that an entire page is something that can be editable, and allows different types of editable regions to be
@@ -122,7 +124,7 @@ you'll write in what you want.
 
 ### For Non-Rails Environments
 
-[Download the zip file](https://github.com/downloads/jejacks0n/mercury/mercury-v0.8.0.zip), and then follow the
+[Download the zip file](https://github.com/downloads/jejacks0n/mercury/mercury-v0.9.0.zip), and then follow the
 installation instructions on the [wiki article](https://github.com/jejacks0n/mercury/wiki/Using-Mercury-without-Rails).
 
 
@@ -333,6 +335,7 @@ Translations and contributors:
 - Swedish ([stefanm](https://github.com/stefanm))
 - Simplified Chinese ([董劭田 DONG Shaotian](https://github.com/richarddong))
 - Hungarian ([egivandor](https://github.com/egivandor))
+- Russian ([ilyacherevkov](https://github.com/ilyacherevkov))
 
 To add translations to your installation you'll first need to turn it on in the configuration and set the prefered
 locale to one of those that's listed above (eg. `fr-CA`, or `pt-BR`).  All you have to do after that is include the
@@ -393,6 +396,6 @@ Mercury is fully tested using Jasmine (via Evergreen) and Cucumber.  You can clo
 
 Licensed under the [MIT License](http://creativecommons.org/licenses/MIT/)
 
-Copyright 2011 [Jeremy Jackson](https://github.com/jejacks0n)
+Copyright 2012 [Jeremy Jackson](https://github.com/jejacks0n)
 
 Icons from [GLYPHICONS](http://www.glyphicons.com/)
