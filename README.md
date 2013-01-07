@@ -235,7 +235,7 @@ your own storage implementation.  Here's an example of loading existing snippet 
 
     jQuery(window).on('mercury:ready', function() {
       Mercury.Snippet.load({
-        snippet_1: {name: 'example', options: {'options[favorite_beer]': "Bells Hopslam", 'options[first_name]': "Jeremy"}}
+        snippet_1: {name: 'example', options: {'favorite_beer': "Bells Hopslam", 'first_name': "Jeremy"}}
       });
     });
 
@@ -331,6 +331,7 @@ Translations and contributors:
 - Italian ([gcastagneti](https://github.com/gcastagnet))
 - Korean ([dorajistyle](https://github.com/dorajistyle))
 - Dutch ([kieranklaassen](https://github.com/kieranklaassen))
+- Polish ([cintrzyk](https://github.com/cintrzyk))
 - Portuguese ([yakko](https://github.com/yakko))
 - Swedish ([stefanm](https://github.com/stefanm))
 - Simplified Chinese ([董劭田 DONG Shaotian](https://github.com/richarddong))
@@ -386,10 +387,12 @@ different back end frameworks or languages.  There's a server specification in t
 
 #### Specs / Integration Tests
 
-Mercury is fully tested using Jasmine (via Evergreen) and Cucumber.  You can clone the project to run the full suite.
+Mercury is fully tested using Jasmine (via Teabag) and Cucumber.  You can clone the project to run the full suite.
 
-    rake spec:javascripts
+    rake teabag
     rake cucumber
+
+The default rake task does both of these in order.
 
 
 ## License
