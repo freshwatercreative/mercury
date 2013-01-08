@@ -34,7 +34,7 @@
 #
 @Mercury ||= {}
 jQuery.extend @Mercury,
-  version: '0.8.0'
+  version: '0.9.0'
 
   # Mercury object namespaces
   Regions: Mercury.Regions || {}
@@ -100,6 +100,7 @@ jQuery.extend @Mercury,
   locale: ->
     return Mercury.determinedLocale if Mercury.determinedLocale
     if Mercury.config.localization.enabled
+      debugger
       locale = []
       if navigator.language && (locale = navigator.language.toString().split('-')).length
         topLocale = Mercury.I18n[locale[0]] || {}
