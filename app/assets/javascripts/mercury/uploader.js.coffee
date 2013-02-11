@@ -42,19 +42,22 @@ jQuery.extend Mercury.uploader,
 
   determine_format: ->
     if ['application/pdf', "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation"].indexOf(@file.type) > -1
+      @metatype = "document"
       return "/mercury/documents"
     else
+      @metatype = "image"
       return "/mercury/images"
+      
 
   build: ->
     @element = jQuery('<div>', {class: 'mercury-uploader', style: 'display:none'})
     @form = jQuery('<form>', {method: 'put', action:  '/admin/mercury_assets/', id: 'upload_attributes'})
     @form.append('<div class="mercury-uploader-preview"><b><img/></b></div>')
-    @form.append('<div class="mercury-uploader-name"><input disabled="true" type="text" name="asset[name]" id="asset[name]" placeholder="Asset Name" /></div>')
-    @form.append('<div class="mercury-uploader-format"><select disabled="true" id="asset[named_format]" name="asset[named_format]"><option value="original">Original</option><option value="full">Full Column</option><option value="half">Half Column</option><option value="quarter">Quarter Column</option><option value="thumb">Thumbnail (150x150)</option></select>')
+    @form.append('<div class="mercury-uploader-name hidden"><label for="asset[name]">Descriptive Name:</label><input disabled="true" type="text" name="asset[name]" id="asset[name]" placeholder="Asset Name" /></div>')
+    @form.append('<div class="mercury-uploader-format hidden"><label for="asset[named_format]">Select a size</label><select disabled="true" id="asset[named_format]" name="asset[named_format]"><option value="original">Original</option><option value="full">Full Column Width</option><option value="half">Half Column Width</option><option value="quarter">Quarter Column Width</option><option value="thumb">Thumbnail (218x100)</option></select>')
     @form.append('<div class="mercury-uploader-details"></div>')
     @form.append('<div class="mercury-uploader-progress"><span></span><div class="mercury-uploader-indicator"><div><b>0%</b></div></div></div>')
-    @form.append('<div class="mercury-uploader-update"><button disabled="true" class="button">Update</button></div>')
+    @form.append('<div class="mercury-uploader-update hidden"><button disabled="true" class="button">Update</button></div>')
     @updateStatus('Processing...')
     @overlay = jQuery('<div>', {class: 'mercury-uploader-overlay', style: 'display:none'})
  
@@ -104,6 +107,14 @@ jQuery.extend Mercury.uploader,
       if ['image/jpeg', 'image/gif', 'image/png'].indexOf(@file.type) > -1
         @file.readAsDataURL (result) =>
           @element.find('.mercury-uploader-preview b').html(jQuery('<img>', {src: result}))
+      else
+        switch @file.type
+          when 'application/pdf' then @element.find('.mercury-uploader-preview b').html(jQuery('<img>', {src: "/assets/mercury/pdf.png"}))
+          when 'application/msword' then @element.find('.mercury-uploader-preview b').html(jQuery('<img>', {src: "/assets/mercury/doc.png"}))
+          when 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' then @element.find('.mercury-uploader-preview b').html(jQuery('<img>', {src: "/assets/mercury/doc.png"}))
+          when 'application/vnd.ms-powerpoint' then @element.find('.mercury-uploader-preview b').html(jQuery('<img>', {src: "/assets/mercury/ppt.png"}))
+          when "application/vnd.openxmlformats-officedocument.presentationml.presentation" then @element.find('.mercury-uploader-preview b').html(jQuery('<img>', {src: "/assets/mercury/ppt.png"}))
+
       @upload()
     else
       @upload()
@@ -121,40 +132,16 @@ jQuery.extend Mercury.uploader,
       else
         try
           response =
-            
             if Mercury.config.uploading.handler
               Mercury.config.uploading.handler(event.target.responseText)
             else
               asset = jQuery.parseJSON(event.target.responseText)
               t = this
-              $('#upload_attributes .mercury-uploader-update button').attr("disabled", false) 
-              $('#upload_attributes .mercury-uploader-name input').attr("disabled", false) 
-              $('#upload_attributes .mercury-uploader-format select').attr("disabled", false) 
-              $('#upload_attributes .mercury-uploader-format select').on "change", (event) ->
-                filename_match = $("#mercury_iframe").contents().find("#mercury_inserted_image").attr("src").match(/([\w\d_-]*)\.?[^\\\/]*$/)[1]
-                $("#mercury_iframe").contents().find("#mercury_inserted_image").attr("src", $("#mercury_iframe").contents().find("#mercury_inserted_image").attr("src").replace(filename_match,$(this).val()))
-              $('#upload_attributes .mercury-uploader-update button').on "click", (event) ->
-                $("#mercury_iframe").contents().find("#mercury_inserted_image").removeAttr("id")
-                $.ajax 
-                  type: 'PUT'
-                  url: '/admin/mercury_assets/'+asset["id"]
-                  dataType: 'json'
-                  contentType: 'application/json'
-                  data: 
-                    JSON.stringify(asset:
-                      name: document.getElementById("asset[name]").value
-                    )
-                error: (jqXHR, textStatus, errorThrown) ->
-                  console.log "Error naming image"
-                  #$('body').append "AJAX Error #{textStatus}"
-                success: (data, textStatus, jqXHR) ->
-                  console.log "Image name updated"
-                  #$('body').append "Success: #{data}"
-                t.hide()
-                return(false)
 
               if ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation"].indexOf(@file.type) > -1
+                @hide() 
                 selection = Mercury.region.selection()
+                console.log(selection)
                 if selection.range.collapsed is false
                   if selection.commonAncestor && selection.commonAncestor(true).find('img').length > 0 
                     content = selection.commonAncestor(true).find('img')[0]
@@ -170,6 +157,34 @@ jQuery.extend Mercury.uploader,
                   Mercury.trigger('action', {action: 'insertLink', value: {tagName: 'a', attrs: attrs, content: content}})
               
               else if ['image/jpeg', 'image/gif', 'image/png'].indexOf(@file.type) > -1
+                $("#upload_attributes div").each ->
+                  $(this).removeClass("hidden")
+                $('#upload_attributes .mercury-uploader-update').find('button').attr("disabled", false) 
+                $('#upload_attributes .mercury-uploader-name input').attr("disabled", false)
+                $('#upload_attributes .mercury-uploader-format select').attr("disabled", false) 
+                $('#upload_attributes .mercury-uploader-format select').on "change", (event) ->
+                  filename_match = $("#mercury_iframe").contents().find("#mercury_inserted_image").attr("src").match(/([\w\d_-]*)\.?[^\\\/]*$/)[1]
+                  $("#mercury_iframe").contents().find("#mercury_inserted_image").attr("src", $("#mercury_iframe").contents().find("#mercury_inserted_image").attr("src").replace(filename_match,$(this).val()))
+                $('#upload_attributes .mercury-uploader-update button').on "click", (event) ->
+                  $("#mercury_iframe").contents().find("#mercury_inserted_image").removeAttr("id")
+                  $.ajax 
+                    type: 'PUT'
+                    url: '/admin/mercury_assets/'+asset["id"]
+                    dataType: 'json'
+                    contentType: 'application/json'
+                    data: 
+                      JSON.stringify(asset:
+                        name: document.getElementById("asset[name]").value
+                      )
+                  error: (jqXHR, textStatus, errorThrown) ->
+                    console.log "Error naming image"
+                    #$('body').append "AJAX Error #{textStatus}"
+                  success: (data, textStatus, jqXHR) ->
+                    console.log "Image name updated"
+                    #$('body').append "Success: #{data}"
+                  t.hide()
+                  return(false)
+
                 src=asset["url"]
                 throw 'Malformed response from server.' unless src
                 Mercury.trigger('action', {action: 'insertImage', value: {src: src, id: "mercury_inserted_image"}})
@@ -206,6 +221,7 @@ jQuery.extend Mercury.uploader,
 
       xhr.send(formData)
 
+  postProcess: (file) ->
 
 
   updateStatus: (message, loaded) ->
@@ -236,7 +252,9 @@ jQuery.extend Mercury.uploader,
 
 
   uploaderEvents:
-    onloadstart: -> @updateStatus('Uploading...')
+    onloadstart: -> 
+      @updateStatus('Uploading...')
+      console.log(@file.type) 
 
     onprogress: (event) -> @updateStatus('Uploading...', event.loaded)
 
@@ -261,6 +279,7 @@ class Mercury.uploader.File
     @name = @file.name || @file.fileName
     @type = @file.type || @file.fileType
     @id   = @file.id   || ""
+    @metatype = @file.metatype || "image"
 
     # add any errors if we need to
     errors = []

@@ -20,7 +20,7 @@
   top: 300px;
   left: 400px;
   width: 500px;
-  height: 188px;
+  height: auto;
   overflow: hidden;
   padding: 15px;
   background: rgba(239, 239, 239, .70);
@@ -62,9 +62,8 @@
   color: #F00;
 }
 .mercury-uploader .mercury-uploader-progress {
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
+  float:left;
+  padding-left:15px;
   width: 333px;
 }
 .mercury-uploader .mercury-uploader-progress div.mercury-uploader-indicator {
@@ -110,3 +109,8 @@
   text-shadow: rgba(255, 255, 255, 0.45) 0 1px 0px;
   white-space: nowrap;
 }
+
+.mercury-uploader-format, .mercury-uploader-name{float:left; overflow:hidden; padding-left:15px;}
+.mercury-uploader-update{padding-top:10px; text-align:right;}
+
+#upload_attributes .hidden{display:none;}

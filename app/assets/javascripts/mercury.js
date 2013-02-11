@@ -217,7 +217,7 @@ window.Mercury = {
     regions: {
       attribute: 'data-mercury',
       identifier: 'id',
-      dataAttributes: []
+      dataAttributes: ["page_id", "region_id", "asset_id", "version"]
       // determineType: function(region){},
       },
 
@@ -270,7 +270,7 @@ window.Mercury = {
     // `{image: {url: '[your provided url]'}`
     uploading: {
       enabled: true,
-      allowedMimeTypes: ['image/jpeg', 'image/gif', 'image/png'],
+      allowedMimeTypes: ["image/jpeg", "image/gif", "image/png", "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation"],
       maxFileSize: 1235242880,
       inputName: 'image[image]',
       url: '/mercury/images',
