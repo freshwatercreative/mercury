@@ -12,6 +12,22 @@ block elements, instead of iframes, which allows for CSS to be applied in ways t
 Mercury has been written using CoffeeScript and jQuery for the Javascript portions, and is written on top of Rails 3.2.
 
 
+## Developer Note
+
+I've started a [new version of Mercury Editor](https://github.com/jejacks0n/mercury/tree/mercury2) with many
+improvements. I've learned a lot in the past few years, and I've also learned how Mercury could be improved from
+comments, feature requests, feedback etc.
+
+The new project will take the place of this one, and the Rails portions will be moved to a new repo and will become more
+full featured -- to serve as an example of how it can be used.  I will do what's reasonable to make this easy for folks
+(eg. moving master -> mercury1, and mercury2 -> master), but I don't get paid for this and I use this project as a sort
+of proving ground for various concepts and techniques, so I'd like to keep it fun and not get bogged down in version
+stuff. This means it's your responsibility to manage the transition or stick with the current version (which is no
+longer maintained by me).
+
+There will be a purging of pull requests and issues when the transition takes place -- probably a few months from now.
+
+
 ## Awesomeness
 
 Ryan Bates has created an awesome [RailsCast](http://railscasts.com/episodes/296-mercury-editor) that walks you through
@@ -29,6 +45,7 @@ but there aren't plans currently for adding support for alternate implementation
 
 Supported Browsers:
 
+- Internet Explorer 10+
 - Chrome 10+
 - Firefox 4+
 - Safari 5+
