@@ -3,7 +3,7 @@ Mercury::Engine.routes.draw do
 
   scope '/mercury' do
     get ':type/:resource' => "mercury#resource"
-    get 'snippets/:name/options' => "mercury#snippet_options"
-    get 'snippets/:name/preview' => "mercury#snippet_preview"
+    post 'snippets/:name/options' => "mercury#snippet_options"
+    post 'snippets/:name/preview' => "mercury#snippet_preview"
   end
 end
