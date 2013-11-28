@@ -206,27 +206,27 @@ class @Mercury.Regions.Full extends Mercury.Region
     Mercury.trigger('region:update', {region: @})
 
 
-  content: (value = null, filterSnippets = true, includeMarker = false) ->
+  content: (value = null, filterSnippets = false, includeMarker = false) ->
     if value != null
       # sanitize the html before we insert it
       container = jQuery('<div>').appendTo(@document.createDocumentFragment())
       container.html(value)
 
       # fill in the snippet contents
-      for element in container.find('[data-snippet]')
-        element.contentEditable = false
-        element = jQuery(element)
-        if snippet = Mercury.Snippet.find(element.data('snippet'))
-          if element.data('version')
-            snippet.setVersion(element.data('version'))
-          else
-            try
-              version = parseInt(element.html().match(/\/(\d+)\]/)[1])
-              if version
-                snippet.setVersion(version)
-                element.attr({'data-version': version})
-                element.html(snippet.data)
-            catch error
+      #for element in container.find('[data-snippet]')
+      #  element.contentEditable = false
+      #  element = jQuery(element)
+      #  if snippet = Mercury.Snippet.find(element.data('snippet'))
+      #    if element.data('version')
+      #      snippet.setVersion(element.data('version'))
+      #    else
+      #      try
+      #        version = parseInt(element.html().match(/\/(\d+)\]/)[1])
+      #        if version
+      #          snippet.setVersion(version)
+      #          element.attr({'data-version': version})
+      #          element.html(snippet.data)
+      #      catch error
 
       # set the html
       @element.html(container.html())
@@ -247,12 +247,13 @@ class @Mercury.Regions.Full extends Mercury.Region
       container.html(@element.html().replace(/^\s+|\s+$/g, ''))
 
       # replace snippet contents to be an identifier
+      # I HAVE DISABLED THIS BECAUSE IT IS STUPID. I WANT SNIPPETS TO BEHAVE LIKE RUBBER STAMPS.
       if filterSnippets then for element, index in container.find('[data-snippet]')
         element = jQuery(element)
         if snippet = Mercury.Snippet.find(element.data("snippet"))
           snippet.data = element.html()
-        element.html("[#{element.data("snippet")}/#{element.data("version")}]")
-        element.attr({contenteditable: null, 'data-version': null})
+          #element.html("[#{element.data("snippet")}/#{element.data("version")}]")
+          #element.attr({contenteditable: null, 'data-version': null})
 
       # get the html before removing the markers
       content = container.html()

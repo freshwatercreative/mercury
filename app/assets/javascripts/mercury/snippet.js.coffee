@@ -76,8 +76,8 @@ class @Mercury.Snippet
     element = jQuery("<#{@wrapperTag}>", {
       class: "cms-snippet " + elementClass
       contenteditable: "false"
-      'cms-data-snippet': @identity
-      'cms-data-version': @version
+      'data-snippet': @identity
+      'data-version': @version
     }, context)
     element.html("[#{@identity}]")
     @loadPreview(element, callback)
