@@ -26,10 +26,10 @@
     # if we're editing an image prefill the information
     if image = selection.is?('img')
       @element.find('#media_image_url').val(image.attr('src'))
-      
+
       @element.find('#media_image_alignment').val(image.attr('align'))
       @element.find('#media_image_float').val(if image.attr('style')? then image.css('float') else '')
-      @focus('#media_image_url')
+      #@focus('#media_image_url')
 
     # if we're editing an iframe (assume it's a video for now)
     if iframe = selection.is?('iframe')
@@ -89,19 +89,25 @@
       when 'vimeo_url'
         url = @element.find('#media_vimeo_url').val()
         @addInputError(el, "is invalid") unless /^https?:\/\/vimeo.com\//.test(url)
+      when 'uploaded_image_url'
+        url = @element.find("#media_uploaded_media_url").val()
+        @addInputError(el, "Choose an Image from the list") unless el.val()
       else
         @addInputError(el, "can't be blank") unless el.val()
 
 
   submitForm: ->
     type = @element.find('input[name=media_type]:checked').val()
-
     switch type
-      when 'image_url'
+      when 'uploaded_image_url'
         format = @element.find('#media_named_format').val()
-        attrs = {src: @element.find('#media_image_url').val()}
+        attrs = {src: @element.find('#media_uploaded_image_url').val()}
         attrs["src"] = attrs["src"].replace("original",format)
-
+        attrs['align'] = alignment if alignment = @element.find('#media_image_alignment').val()
+        attrs['style'] = 'float: ' + float + ';' if float = @element.find('#media_image_float').val()
+        Mercury.trigger('action', {action: 'insertImage', value: attrs})
+      when 'image_url'
+        attrs = {src: @element.find('#media_image_url').val()}
         attrs['align'] = alignment if alignment = @element.find('#media_image_alignment').val()
         attrs['style'] = 'float: ' + float + ';' if float = @element.find('#media_image_float').val()
         Mercury.trigger('action', {action: 'insertImage', value: attrs})
