@@ -85,7 +85,6 @@ class @Mercury.Snippet
     }, context)
     element.html("[#{@identity}]")
     @loadPreview(element, callback)
-    console.log(@options)
     return element
 
 
