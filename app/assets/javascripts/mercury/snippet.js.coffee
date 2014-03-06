@@ -78,9 +78,14 @@ class @Mercury.Snippet
       contenteditable: "false"
       'data-snippet': @identity
       'data-version': @version
+      'data-object-class': @options.object_class
+      'data-object-id': @options.id
+      'data-snippet-type': @options.snippet_type
+      'data-snippet-folder': @options.snippet_folder
     }, context)
     element.html("[#{@identity}]")
     @loadPreview(element, callback)
+    console.log(@options)
     return element
 
 
